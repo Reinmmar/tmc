@@ -110,6 +110,7 @@ void FileScreenObjects_Type23_Action1(FileScreenObjectsEntity* this) {
         this->unk_6a = var2;
         super->spriteSettings.draw = 0;
         return;
+        
     }
 
     if (super->type2 != gMapDataBottomSpecial.unk6) {
