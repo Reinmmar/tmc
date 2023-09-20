@@ -100,7 +100,7 @@ void FileScreenObjects_Type23_Init(FileScreenObjectsEntity* this) {
 }
 
 void FileScreenObjects_Type23_Action1(FileScreenObjectsEntity* this) {
-    u32 var0;
+    u32 anim;
     u32 offset;
 
     if (!sub_0808E950()) {
@@ -114,8 +114,9 @@ void FileScreenObjects_Type23_Action1(FileScreenObjectsEntity* this) {
 
     if (super->type2 != gMapDataBottomSpecial.unk6) {
         super->type2 = gMapDataBottomSpecial.unk6;
-        this->unk_68 = CheckGlobalFlag(EZERO_1ST) == 0 ? 0x400 : 0x100;
-        this->unk_70 = 4;
+        // this->unk_68 = CheckGlobalFlag(EZERO_1ST) == 0 ? 0x400 : 0x100;
+        this->unk_68 = CheckGlobalFlag(EZERO_1ST) ? 0x128 : 0x418;
+        this->unk_70 = 0;
         super->animationState = 2;
         offset = gUnk_08133368[GetPlayerPalette(TRUE) - 22] & 0xFFFFFF;
         LoadPalettes(&gGlobalGfxAndPalettes[offset], 31, 1);
@@ -144,11 +145,11 @@ void FileScreenObjects_Type23_Action1(FileScreenObjectsEntity* this) {
     }
 
     super->spriteSettings.flipX = super->animationState == 3;
-    var0 = this->unk_68 + this->unk_70 + super->animationState;
-    if (this->unk_6a != var0) {
-        this->unk_6a = var0;
-        super->spriteIndex = var0 >> 8;
-        InitAnimationForceUpdate(super, (u8)var0);
+    anim = this->unk_68 + this->unk_70 + super->animationState;
+    if (this->unk_6a != anim) {
+        this->unk_6a = anim;
+        super->spriteIndex = anim >> 8;
+        InitAnimationForceUpdate(super, (u8)anim);
     }
 
     super->spriteSettings.draw = 2;
@@ -213,7 +214,7 @@ void FileScreenObjects_Type0(FileScreenObjectsEntity* this) {
     u32 var1;
 
     if (super->type == 3) {
-        if (gSaveHeader->language > LANGUAGE_EN) {
+        if (gSaveHeader->language > SAVELANG_US) {
             super->spriteSettings.draw = 2;
         } else {
             super->spriteSettings.draw = 0;
@@ -328,11 +329,13 @@ void FileScreenObjects_Type16(FileScreenObjectsEntity* this) {
     }
 
     x = y = 0xF000;
+#define LANGUAGE_SELECT_SPACING 16
+#define LANGUAGE_SELECT_Y 24
     switch (var0) {
         case 0:
             break;
         case 1:
-            y = gSaveHeader->language * 16 + 24;
+            y = gSaveHeader->language * LANGUAGE_SELECT_SPACING + LANGUAGE_SELECT_Y;
             x = 112;
             break;
         case 2:

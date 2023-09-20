@@ -4,6 +4,8 @@
  *
  * @brief Figurine Device object
  */
+#undef EU
+#define USA
 #define NENT_DEPRECATED
 #include "figurineMenu.h"
 #include "fileselect.h"
@@ -224,7 +226,7 @@ void FigurineDevice_Action3(FigurineDeviceEntity* this) {
 
 void FigurineDevice_Action4(FigurineDeviceEntity* this) {
     u8 old_81;
-    s32 tmp;
+    s32 shellsToAdd;
 
     switch (this->unk_7a) {
         case 0:
@@ -245,7 +247,7 @@ void FigurineDevice_Action4(FigurineDeviceEntity* this) {
             if (super->timer != 0) {
                 super->timer--;
             }
-            if ((gInput.newKeys & 1) != 0) {
+            if ((gInput.newKeys & A_BUTTON) != 0) {
                 SoundReq(SFX_TEXTBOX_SELECT);
                 this->unk_7a = 2;
                 super->timer = 60;
@@ -254,21 +256,27 @@ void FigurineDevice_Action4(FigurineDeviceEntity* this) {
             }
             old_81 = this->unk_81;
 #ifndef EU
-            if ((gInput.heldKeys & 0x100) != 0) {
-                tmp = 10;
+            if ((gInput.heldKeys & R_BUTTON) != 0) {
+                shellsToAdd = 10;
             } else {
-                tmp = 1;
+                shellsToAdd = 1;
             }
 #ifdef JP
             switch (gInput.unk4) {
 #else
-            switch (gInput.unk4 & 0xfffffeff) {
+            switch (gInput.unk4 & EVERYTHING_EXCEPT_R_BUTTON) {
 #endif
-                case 0x40:
-                    sub_08087F94(this, tmp);
+                case DPAD_UP:
+                    sub_08087F94(this, shellsToAdd);
                     break;
-                case 0x80:
-                    sub_08087F94(this, -tmp);
+                case DPAD_DOWN:
+                    sub_08087F94(this, -shellsToAdd);
+                    break;
+                case DPAD_LEFT:
+                    sub_08087F94(this, -shellsToAdd * 10);
+                    break;
+                case DPAD_RIGHT:
+                    sub_08087F94(this, shellsToAdd * 10);
                     break;
             }
             if (old_81 != this->unk_81) {
@@ -276,11 +284,17 @@ void FigurineDevice_Action4(FigurineDeviceEntity* this) {
             }
 #else
             switch (gInput.unk4) {
-                case 0x40:
+                case DPAD_UP:
                     sub_08087F94(this, 1);
                     break;
-                case 0x80:
+                case DPAD_DOWN:
                     sub_08087F94(this, -1);
+                    break;
+                case DPAD_LEFT:
+                    sub_08087F94(this, -10);
+                    break;
+                case DPAD_RIGHT:
+                    sub_08087F94(this, 10);
                     break;
             }
             if (old_81 != this->unk_81) {
@@ -292,10 +306,10 @@ void FigurineDevice_Action4(FigurineDeviceEntity* this) {
             this->unk_7a = 0;
             this->unk_7b = 4;
             SetRoomFlag(3);
-            MessageFromTarget(TEXT_INDEX(TEXT_CARLOV, 0x1a));
+            MessageFromTarget(TEXT_INDEX(TEXT_CARLOV, 26));
 #ifndef EU
             gMessage.textWindowPosX = 1;
-            gMessage.textWindowPosY = 0xc;
+            gMessage.textWindowPosY = 12;
 #endif
             gMessage.rupees = this->unk_81;
             break;
@@ -744,13 +758,13 @@ void sub_08088544(void) {
     }
     MessageFromTarget(index);
     gMessage.textWindowPosX = 1;
-    gMessage.textWindowPosY = 0xc;
+    gMessage.textWindowPosY = 12;
 }
 
 void sub_08088574(void) {
     u32 index;
 #ifdef EU
-    if (CheckRoomFlag(0xa)) {
+    if (CheckRoomFlag(10)) {
 #else
     if (CheckRoomFlag(9)) {
 #endif
@@ -764,7 +778,7 @@ void sub_08088574(void) {
     }
     MessageFromTarget(index);
     gMessage.textWindowPosX = 1;
-    gMessage.textWindowPosY = 0xc;
+    gMessage.textWindowPosY = 12;
 }
 
 void sub_080885B0(void) {
@@ -773,7 +787,7 @@ void sub_080885B0(void) {
             ModRupees(5);
             MessageFromTarget(TEXT_INDEX(TEXT_CARLOV, 0x26));
             gMessage.textWindowPosX = 1;
-            gMessage.textWindowPosY = 0xc;
+            gMessage.textWindowPosY = 12;
         }
     } else if (gSave.stats._hasAllFigurines != 0) {
         // GOT ALL THEM FIGURINES (:
@@ -798,7 +812,7 @@ void sub_0808861C(FigurineDeviceEntity* this, ScriptExecutionContext* context) {
     gActiveScriptInfo.flags |= 1;
 }
 
-#if !defined(JP)
+#ifndef JP
 void sub_08088658(FigurineDeviceEntity* this, ScriptExecutionContext* context) {
     context->condition = CheckPlayerInRegion(0x78, 0x78, 0x10, 8);
     if (gPlayerEntity.z.HALF.HI != 0) {

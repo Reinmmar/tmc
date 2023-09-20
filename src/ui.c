@@ -332,7 +332,6 @@ void DrawHearts(void) {
     s32 maxHealth;
     s32 tmp1;
     u16* ptr;
-
     if ((gUnk_0200AF00.unk_1 & 0x10) != 0) {
         EraseChargeBar();
         EraseHearts();

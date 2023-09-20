@@ -74,10 +74,10 @@ void StaffrollTask_State0(void) {
     gStaffrollMenu.unk_16 = 5;
     gStaffrollMenu.unk_17 = 4;
     gStaffrollMenu.bgmMusicStarted = 0;
-    if (gSaveHeader->language >= 2) {
+    if (gSaveHeader->language >= SAVELANG_EN) {
         gStaffrollMenu.base.field_0xc = gUnk_08127998;
     } else {
-        if (gSaveHeader->language == 1) {
+        if (gSaveHeader->language == SAVELANG_JP) {
             gStaffrollMenu.base.field_0xc = gUnk_08127644;
         } else {
             gStaffrollMenu.base.field_0xc = gUnk_081272F0;
@@ -269,13 +269,13 @@ void StaffrollTask_State2(void) {
                 } else {
                     choice = gStaffrollMenu.base.field_0x3;
                     switch (gInput.newKeys) {
-                        case 0x40:
+                        case DPAD_UP:
                             choice = 0;
                             break;
-                        case 0x80:
+                        case DPAD_DOWN:
                             choice = 1;
                             break;
-                        case 1:
+                        case A_BUTTON:
                             if (choice != 0) {
                                 tmp = 4;
                             } else {
@@ -313,7 +313,7 @@ void StaffrollTask_State2(void) {
             if (gStaffrollMenu.base.transitionTimer != 0) {
                 gStaffrollMenu.base.transitionTimer--;
             } else {
-                if ((gInput.newKeys & 0xb) != 0) {
+                if ((gInput.newKeys & (START_BUTTON | A_BUTTON | B_BUTTON)) != 0) {
                     gStaffrollMenu.base.overlayType = 1;
                 }
             }

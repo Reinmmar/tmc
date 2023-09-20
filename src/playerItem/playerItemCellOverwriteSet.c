@@ -23,7 +23,7 @@ extern const u8 gUnk_080B7A3E[]; // TODO figure out type from arm_sub_080B1B84 a
 
 void PlayerItemCellOverwriteSet(PlayerItemCellOverwriteSetEntity* this) {
     static const s8 gUnk_080B7B6C[] = { 0x0, -0x10, 0x10, 0x0, 0x0, 0x10, -0x10, 0x0 };
-    u32 tmp;
+    u32 rButtonPressed;
     Entity* player = &gPlayerEntity;
 
     if (super->action == 0) {
@@ -33,7 +33,7 @@ void PlayerItemCellOverwriteSet(PlayerItemCellOverwriteSetEntity* this) {
         super->action++;
     }
     gPlayerState.mobility |= 0x80;
-    tmp = gInput.heldKeys & R_BUTTON;
+    rButtonPressed = gInput.heldKeys & R_BUTTON;
     if ((gInput.heldKeys & A_BUTTON) != 0) {
         if ((R_BUTTON & gInput.newKeys) != 0) {
             this->tileType = GetTileType(TILE(player->x.HALF.HI + gUnk_080B7B6C[player->animationState & 0xe],

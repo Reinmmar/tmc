@@ -52,7 +52,7 @@ static u32 GetAdvanceState(void);
 static void UpdateLightRays(void);
 static void UpdatePressStartIcon(void);
 
-static void (*const sIntroSequenceHandlers[])(void) = {
+void (*const sIntroSequenceHandlers[])(void) = {
     HandleNintendoCapcomLogos,
     HandleTitlescreen,
     ExitTitlescreen,
@@ -155,7 +155,6 @@ void TitleTask(void) {
 static void HandleNintendoCapcomLogos(void) {
     u32 advance;
     u32 paletteGroup;
-
     advance = GetAdvanceState();
     if (gIntroState.state == 0) {
         DispReset(1);
@@ -163,7 +162,7 @@ static void HandleNintendoCapcomLogos(void) {
         gIntroState.timer = 120;
         LoadGfxGroup(16);
         LoadGfxGroup(1);
-        if (gSaveHeader->language == 0) {
+        if (gSaveHeader->language == SAVELANG_US) {
             paletteGroup = 1;
         } else {
             paletteGroup = 2;
@@ -217,13 +216,13 @@ static void HandleTitlescreen(void) {
             ResetPalettes();
             gGFXSlots.unk0 = 1;
             LoadGfxGroup(2);
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 paletteGroup = 3;
             } else {
                 paletteGroup = 4;
             }
             LoadPaletteGroup(paletteGroup);
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 // Blend first and second layer
                 gScreen.controls.layerFXControl = BLDCNT_TGT1_BG2 | BLDCNT_TGT2_BG3 | BLDCNT_EFFECT_BLEND;
                 gScreen.controls.alphaBlend = BLDALPHA_BLEND(9, 9);
@@ -245,14 +244,15 @@ static void HandleTitlescreen(void) {
                 UpdateSwordBgAffineData();
             }
             InitSoundPlayingInfo();
-            SoundReq(BGM_TITLE_SCREEN);
+            // SoundReq(BGM_TITLE_SCREEN);
+            SoundReq(BGM_LTTP_TITLE);
             SetFade(FADE_BLACK_WHITE | FADE_INSTANT, 8);
             break;
         case 1:
             if (gFadeControl.active) {
                 return;
             }
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 HandleJapaneseTitlescreenAnimationIntro();
             } else {
                 HandleTitlescreenAnimationIntro();

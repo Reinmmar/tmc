@@ -55,11 +55,12 @@ ELF = $(BUILD_NAME).elf
 # ==================
 # entrypoint targets
 # ==================
-CUSTOM ?=
+CUSTOM ?= 1
 COMPARE ?= $(if $(CUSTOM),0,1)
 
 .PHONY: build extract_assets build_assets
 build: $(if $(CUSTOM), build_assets, $(BUILD_DIR)/extracted_assets_$(GAME_VERSION))
+	@echo $(SPEEDVERSION)
 	@$(MAKE) -f GBA.mk $(ROM)
 ifeq ($(COMPARE), 1)
 	@$(SHA1) $(BUILD_NAME).sha1
@@ -95,15 +96,20 @@ $(BUILD_DIR)/%.o: %.s $$(deps) $(ENUM_ASM_HEADERS)
 
 $(BUILD_DIR)/enum_include/%.inc: include/%.h
 	@mkdir -p $(dir $@)
-	$(ENUM_PROCESSOR) $< $(CC) "-D__attribute__(x)=" "-D$(GAME_VERSION)" "-E" "-nostdinc" "-Itools/agbcc" "-Itools/agbcc/include" "-iquote include" > $@
+	@python $(ENUM_PROCESSOR) $< $(CC) "-D__attribute__(x)=" "-D$(GAME_VERSION)" "-E" "-nostdinc" "-Itools/agbcc" "-Itools/agbcc/include" "-iquote include" > $@
 
 # =============
 # build C files
 # =============
 
+
+SPEEDVERSION ?= 0
 # agbcc includes are separate because we don't want dependency scanning on them
 CINCLUDE := -I include -I $(BUILD_DIR)
 CPPFLAGS := -I tools/agbcc -I tools/agbcc/include $(CINCLUDE) -nostdinc -undef -D$(GAME_VERSION) -DREVISION=$(REVISION) -D$(GAME_LANGUAGE)
+ifeq ($(SPEEDVERSION), 1)
+	CPPFLAGS += -DSPEEDVERSION
+endif
 CFLAGS := -O2 -Wimplicit -Wparentheses -Werror -Wno-multichar -g3
 
 interwork := $(BUILD_DIR)/src/interrupts.o \

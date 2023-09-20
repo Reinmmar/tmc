@@ -201,7 +201,6 @@ bool32 AreaHasMap(void) {
 s32 ModHealth(s32 delta) {
     s32 newHealth;
     Stats* stats = &gSave.stats;
-
     newHealth = stats->health + delta;
     if (newHealth < 0) {
         newHealth = 0;

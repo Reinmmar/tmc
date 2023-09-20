@@ -16,6 +16,7 @@
 #include "menu.h"
 #include "message.h"
 #include "object.h"
+#include "player.h"
 #include "screen.h"
 #include "subtask.h"
 #include "ui.h"
@@ -406,7 +407,7 @@ static void HandleFileScreenEnter(void) {
     MemClear(&gUnk_0200AF00, sizeof(gUnk_0200AF00));
     MemClear(&gMapDataBottomSpecial, sizeof(gMapDataBottomSpecial));
     gMapDataBottomSpecial.unk3 = 7;
-    gMapDataBottomSpecial.unk6 = gSaveHeader->language > LANGUAGE_EN ? 3 : 0;
+    gMapDataBottomSpecial.unk6 = gSaveHeader->language > SAVELANG_US ? 3 : 0;
     MemClear(&gUI, sizeof(gUI));
     gUI.lastState = 8;
     SetFileSelectState(STATE_NONE);
@@ -429,7 +430,8 @@ static void HandleFileScreenEnter(void) {
     gScreen.controls.alphaBlend = BLDALPHA_BLEND(15, 10);
     gGFXSlots.unk0 = 1;
     gMain.state = GAMETASK_INIT;
-    SoundReq(BGM_FILE_SELECT);
+    // SoundReq(BGM_FILE_SELECT);
+    SoundReq(BGM_LOST_WOODS);
     SetFade(FADE_INSTANT, 8);
 }
 
@@ -630,7 +632,7 @@ void sub_08050940(void) {
         keys &= ~(DPAD_UP | DPAD_DOWN);
     }
 
-    num_rows = gSaveHeader->language > 1 ? NUM_SAVE_SLOTS + 1 : NUM_SAVE_SLOTS;
+    num_rows = gSaveHeader->language > SAVELANG_US ? NUM_SAVE_SLOTS + 1 : NUM_SAVE_SLOTS;
     mode = gUI.lastState;
     switch (keys) {
         case DPAD_UP:
@@ -680,9 +682,8 @@ void sub_08050940(void) {
 }
 
 void sub_08050A64(u32 idx) {
-    if (gMapDataBottomSpecial.saveStatus[idx] != SAVE_VALID) {
+    if (gMapDataBottomSpecial.saveStatus[idx] != SAVE_VALID)
         return;
-    }
 
     gOamCmd._4 = 0;
     gOamCmd._6 = 0;
@@ -690,10 +691,10 @@ void sub_08050A64(u32 idx) {
 
     // Draw the save file's obtained elements.
     if (GetInventoryValue(ITEM_EARTH_ELEMENT)) {
-        gOamCmd.x = 0xA2;
-        gOamCmd.y = 0x36;
+        gOamCmd.x = 162;
+        gOamCmd.y = 54;
 #ifdef EU
-        DrawDirect(0x144, 0x24);
+        DrawDirect(324, 36);
 #else
         DrawDirect(0x145, 0x24);
 #endif
@@ -816,11 +817,11 @@ void sub_08050B3C(u16* target) {
 }
 
 void sub_08050C54(void);
-void sub_08050D68(void);
+void FileSelectStateChoice(void);
 
 void (*const gUnk_080FC93C[])() = {
     sub_08050C54,
-    sub_08050D68,
+    FileSelectStateChoice,
 };
 
 void HandleFileView(void) {
@@ -868,7 +869,7 @@ void sub_08050C54(void) {
     }
 }
 
-void sub_08050D68(void) {
+void FileSelectStateChoice(void) {
     u32 state;
 
     if (gMenu.transitionTimer == 0) {
@@ -891,11 +892,11 @@ void sub_08050D68(void) {
 }
 
 void sub_08050DB8(void);
-void sub_08050DE4(void);
+void ChangeLanguage(void);
 void sub_08050E88(void);
 void (*const gUnk_080FC944[])(void) = {
     sub_08050DB8,
-    sub_08050DE4,
+    ChangeLanguage,
     sub_08050E88,
 };
 
@@ -910,24 +911,24 @@ void sub_08050DB8(void) {
     SetMenuType(1);
 }
 
-void sub_08050DE4(void) {
-    s32 row_idx;
+void ChangeLanguage(void) {
+    s32 language;
 
     if (gMapDataBottomSpecial.isTransitioning)
         return;
 
-    row_idx = gSaveHeader->language;
+    language = gSaveHeader->language;
     switch (gInput.newKeys) {
         case DPAD_UP:
-            row_idx--;
+            language--;
             break;
         case DPAD_DOWN:
-            row_idx++;
+            language++;
             break;
         case A_BUTTON:
         case START_BUTTON:
             SoundReq(SFX_TEXTBOX_SELECT);
-            if (gMenu.field_0x4 != row_idx) {
+            if (gMenu.field_0x4 != language) {
                 SetMenuType(2);
                 CreateDialogBox(8, 0);
             } else {
@@ -935,7 +936,7 @@ void sub_08050DE4(void) {
             }
             break;
         case B_BUTTON:
-            row_idx = gMenu.field_0x4;
+            language = gMenu.field_0x4;
             gSaveHeader->language = gMenu.field_0x4;
             SoundReq(SFX_MENU_CANCEL);
             SetFileSelectState(STATE_NONE);
@@ -943,14 +944,14 @@ void sub_08050DE4(void) {
     }
 
     // Lazy solution for positioning the rows lower on the screen
-    if (row_idx < 2) {
-        row_idx = 2;
+    if (language < 0) {
+        language = 6;
     }
-    if (row_idx > 6) {
-        row_idx = 6;
+    if (language > 6) {
+        language = 0;
     }
-    if (gSaveHeader->language != row_idx) {
-        gSaveHeader->language = row_idx;
+    if (gSaveHeader->language != language) {
+        gSaveHeader->language = language;
         SoundReq(SFX_TEXTBOX_CHOICE);
     }
 }
@@ -1123,8 +1124,8 @@ const u8 gUnk_080FC9A0[] = {
 
 void sub_080610B8(void) {
     u8 uVar7;
-    s32 uVar6;
-    s32 tmp4;
+    s32 xTmp;
+    s32 yTmp;
     const u8* puVar3;
     const u8* puVar4;
     const u8* puVar5;
@@ -1133,7 +1134,7 @@ void sub_080610B8(void) {
     u32 tmp1;
     u32 tmp3;
     u8 tmp2;
-    u8 cVar1;
+    u8 saveName;
     s32 uVar8;
     s32 uVar5;
 
@@ -1143,42 +1144,42 @@ void sub_080610B8(void) {
     uVar7 = 0;
     switch (gInput.newKeys) {
         default:
-            uVar6 = 0;
-            tmp4 = 0;
+            xTmp = 0;
+            yTmp = 0;
             switch (gInput.unk4) {
-                case 0x40:
-                    tmp4 = -1;
+                case DPAD_UP:
+                    yTmp = -1;
                     break;
-                case 0x80:
-                    tmp4 = 1;
+                case DPAD_DOWN:
+                    yTmp = 1;
                     break;
-                case 0x20:
-                    uVar6 = -1;
+                case DPAD_LEFT:
+                    xTmp = -1;
                     break;
-                case 0x10:
-                    uVar6 = 1;
+                case DPAD_RIGHT:
+                    xTmp = 1;
                     break;
             }
-            gGenericMenu.unk10.a[1] = (gGenericMenu.unk10.a[1] + tmp4 + 6) % 6;
-            if ((tmp4 | uVar6) != 0) {
+            gGenericMenu.unk10.a[1] = (gGenericMenu.unk10.a[1] + yTmp + 6) % 6;
+            if (yTmp | xTmp) {
                 SoundReq(SFX_TEXTBOX_NEXT);
             }
-            if (uVar6 != 0) {
+            if (xTmp != 0) {
                 if (gGenericMenu.unk10.a[1] != 5) {
-                    gGenericMenu.unk10.a[0] = (gGenericMenu.unk10.a[0] + uVar6 + 0xd) % 0xd;
+                    gGenericMenu.unk10.a[0] = (gGenericMenu.unk10.a[0] + xTmp + 0xd) % 0xd;
                     puVar4 = gUnk_080FC980;
-                    if (gSaveHeader->language != 0) {
+                    if (gSaveHeader->language != SAVELANG_JP) {
                         puVar4 += 0x10;
                     }
                     gGenericMenu.unk10.a[2] = puVar4[gGenericMenu.unk10.a[0]];
                 } else {
-                    if (gSaveHeader->language == 0) {
+                    if (gSaveHeader->language == SAVELANG_JP) {
                         iVar4 = 5;
                     } else {
                         iVar4 = 4;
                     }
-                    gGenericMenu.unk10.a[2] = (gGenericMenu.unk10.a[2] + uVar6 + iVar4) % iVar4;
-                    if (gSaveHeader->language != 0) {
+                    gGenericMenu.unk10.a[2] = (gGenericMenu.unk10.a[2] + xTmp + iVar4) % iVar4;
+                    if (gSaveHeader->language != SAVELANG_JP) {
                         puVar5 = gUnk_080FC9A0 + 8;
                     } else {
                         puVar5 = gUnk_080FC9A0;
@@ -1195,7 +1196,7 @@ void sub_080610B8(void) {
             }
             break;
         case START_BUTTON:
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 iVar4 = 4;
             } else {
                 iVar4 = 3;
@@ -1210,7 +1211,7 @@ void sub_080610B8(void) {
             if (gGenericMenu.unk10.a[1] == 5) {
                 puVar3 = gUnk_080FC970;
                 tmp1 = gGenericMenu.unk10.a[2];
-                if (gSaveHeader->language != 0) {
+                if (gSaveHeader->language != SAVELANG_JP) {
                     tmp1 += 8;
                 }
                 uVar7 = puVar3[tmp1];
@@ -1220,14 +1221,14 @@ void sub_080610B8(void) {
             }
             break;
         case L_BUTTON:
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 uVar7 = 4;
             } else {
                 uVar7 = 1;
             }
             break;
         case R_BUTTON:
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 uVar7 = 7;
             } else {
                 uVar7 = 2;
@@ -1266,8 +1267,8 @@ void sub_080610B8(void) {
         case 8:
             uVar8 = 5;
             do {
-                cVar1 = gSave.name[uVar8];
-                if ((cVar1 != 0) && (cVar1 != 0x20)) {
+                saveName = gSave.name[uVar8];
+                if (saveName && saveName != 0x20) {
                     break;
                 }
                 gSave.name[uVar8] = 0;
@@ -1281,7 +1282,7 @@ void sub_080610B8(void) {
             sub_08051574(0x6a);
             SetMenuType(uVar7);
     }
-    if (gSaveHeader->language == 0) {
+    if (gSaveHeader->language == SAVELANG_JP) {
         iVar4 = 3;
     } else {
         iVar4 = 2;
@@ -1295,7 +1296,7 @@ void sub_080610B8(void) {
 }
 
 void sub_08051358(void) {
-    gGenericMenu.unk10.a[2] = gSaveHeader->language == 0 ? 4 : 3;
+    gGenericMenu.unk10.a[2] = gSaveHeader->language == SAVELANG_JP ? 4 : 3;
 
     if (gGenericMenu.unk10.a[0] != 0x0b || gGenericMenu.unk10.a[1] != 0x5) {
         gGenericMenu.unk10.a[1] = 0x5;
@@ -1392,7 +1393,7 @@ u32 sub_080514BC(u32 a1) {
     u32 c;
     u32 idx;
 
-    if (gSaveHeader->language != 0)
+    if (gSaveHeader->language != SAVELANG_JP)
         return 1;
 
     switch (a1) {

@@ -11,7 +11,7 @@
 
 typedef struct {
     Entity base;
-    u8 filler[0x1C];
+    u8 filler[28];
     MinecartData* minecartData;
 } MinecartEntity;
 
@@ -19,8 +19,8 @@ extern void sub_08017744(Entity*);
 
 u32 sub_08091DDC(MinecartEntity* this);
 void Minecart_Init(MinecartEntity* this);
-void Minecart_Action1(MinecartEntity* this);
-void Minecart_Action2(MinecartEntity* this);
+void Minecart_JumpIn(MinecartEntity* this);
+void Minecart_Enter(MinecartEntity* this);
 void Minecart_Action3(MinecartEntity* this);
 void Minecart_Action4(MinecartEntity* this);
 void Minecart_Action5(MinecartEntity* this);
@@ -31,7 +31,7 @@ extern const u16* const gUnk_081223D8[];
 
 void Minecart(Entity* this) {
     static void (*const Minecart_Actions[])(MinecartEntity*) = {
-        Minecart_Init,    Minecart_Action1, Minecart_Action2, Minecart_Action3,
+        Minecart_Init,    Minecart_JumpIn, Minecart_Enter, Minecart_Action3,
         Minecart_Action4, Minecart_Action5, Minecart_Action6, Minecart_Action7,
     };
     Minecart_Actions[this->action]((MinecartEntity*)this);
@@ -63,7 +63,7 @@ void Minecart_Init(MinecartEntity* this) {
     SetTile(0x4022, COORD_TO_TILE(super), super->collisionLayer);
 }
 
-void Minecart_Action1(MinecartEntity* this) {
+void Minecart_JumpIn(MinecartEntity* this) {
     if ((super->contactFlags & 0x7f) == 0x1d) {
         super->zVelocity = Q_16_16(2.625);
         super->action = 7;
@@ -86,7 +86,7 @@ void Minecart_Action1(MinecartEntity* this) {
                 gPlayerState.jump_status = 0x81;
                 gPlayerState.flags |= PL_ENTER_MINECART;
                 gPlayerEntity.zVelocity = Q_16_16(2.0);
-                gPlayerEntity.speed = 0x100;
+                gPlayerEntity.speed = 256;
                 gPlayerEntity.flags &= ~PL_MINISH;
                 ResetActiveItems();
                 DeleteClones();
@@ -98,7 +98,7 @@ void Minecart_Action1(MinecartEntity* this) {
     }
 }
 
-void Minecart_Action2(MinecartEntity* this) {
+void Minecart_Enter(MinecartEntity* this) {
     if (EntityInRectRadius(super, &gPlayerEntity, 2, 2) != 0) {
         gPlayerEntity.x.HALF.HI = super->x.HALF.HI;
         gPlayerEntity.y.HALF.HI = super->y.HALF.HI;
@@ -140,7 +140,7 @@ void Minecart_Action3(MinecartEntity* this) {
         return;
     }
 
-    if ((gPlayerEntity.frame & 0xf) == 0) {
+    if ((gPlayerEntity.frame & 15) == 0) {
         COLLISION_OFF(super);
         CopyPosition(super, &gPlayerEntity);
         if ((gPlayerEntity.frame & 0xf0) == 0x10) {

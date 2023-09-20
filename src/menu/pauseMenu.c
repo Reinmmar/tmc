@@ -100,37 +100,44 @@ void PauseMenu_Variant1(void) {
 }
 
 void PauseMenu_Variant2(void) {
-    int iVar1;
-    u32 uVar2;
+    int action;
+    u32 hasMap;
     int iVar4;
     s32 bVar5;
 
+    enum ActionsHere {
+        START_PRESSED_HERE,
+        L_PRESSED_HERE,
+        R_PRESSED_HERE,
+        B_PRESSED_HERE,
+    };
+
     if (sub_080A51F4() && (gMenu.field_0xc != NULL)) {
-        iVar1 = -1;
+        action = -1;
         switch (gInput.newKeys) {
             case START_BUTTON:
-                iVar1 = 0;
+                action = START_PRESSED_HERE;
                 break;
             case L_BUTTON:
-                iVar1 = 1;
+                action = L_PRESSED_HERE;
                 break;
             case R_BUTTON:
-                iVar1 = 2;
+                action = R_PRESSED_HERE;
                 break;
             case B_BUTTON:
-                iVar1 = 3;
+                action = B_PRESSED_HERE;
                 break;
         }
-        if (iVar1 >= 0) {
-            switch (bVar5 = gMenu.field_0xc[iVar1]) {
+        if (action >= 0) {
+            switch (bVar5 = gMenu.field_0xc[action]) {
                 case 0:
                     break;
                 case 4 ... 6:
                 case 0xf:
-                    uVar2 = GetInventoryValue(ITEM_MAP);
-                    if (uVar2 == 0) {
+                    hasMap = GetInventoryValue(ITEM_MAP);
+                    if (!hasMap) {
                         iVar4 = 1;
-                        if (iVar1 == 1) {
+                        if (action == L_PRESSED_HERE) {
                             iVar4 = 2;
                         }
                         bVar5 = gMenu.field_0xc[iVar4];
@@ -398,7 +405,7 @@ void PauseMenu_ItemMenu_Update(void) {
                 }
             case B_BUTTON:
                 if (gPauseMenu.items[menuSlot] != 0) {
-                    u32 slot = !!(gInput.newKeys ^ 1);
+                    u32 slot = !!(gInput.newKeys ^ A_BUTTON);
                     ForceEquipItem(gPauseMenu.items[menuSlot], slot);
                     SoundReq(SFX_TEXTBOX_SELECT);
                 }
@@ -507,7 +514,7 @@ void PauseMenu_ItemMenu_Draw(void) {
     gOamCmd._8 = 0x800;
     {
         u32 slot = gMenu.field_0x3;
-        if ((slot == MENU_SLOT_SAVE_BUTTON) && (gSaveHeader->language != 0)) {
+        if ((slot == MENU_SLOT_SAVE_BUTTON) && (gSaveHeader->language != SAVELANG_JP)) {
             slot = MENU_SLOT_SAVE_BUTTON_JP;
         }
         entry = &gItemMenuTable[slot];
@@ -518,7 +525,7 @@ void PauseMenu_ItemMenu_Draw(void) {
     }
     {
         u32 slot;
-        if (gSaveHeader->language != 0) {
+        if (gSaveHeader->language != SAVELANG_JP) {
             slot = MENU_SLOT_SAVE_BUTTON;
         } else {
             slot = MENU_SLOT_SAVE_BUTTON_JP;
@@ -814,7 +821,7 @@ void sub_080A57F4(void) {
 
     gOamCmd._4 = 0x400;
     gOamCmd._6 = 0;
-    if (gSaveHeader->language == 0) {
+    if (gSaveHeader->language == SAVELANG_JP) {
         puVar8 = gUnk_08128C14;
     } else {
         puVar8 = gUnk_08128C94;
@@ -996,7 +1003,7 @@ void sub_080A5AF4(void) {
     gMenu.field_0x3 = 0;
     SetPopupState(2, 0);
 #ifndef EU
-    if (gSaveHeader->language == 0) {
+    if (gSaveHeader->language == SAVELANG_JP) {
         gScreen.bg1.yOffset = -4;
     } else {
         gScreen.bg1.yOffset = 0;

@@ -28,11 +28,6 @@
 #define GRAVITY_RATE Q_8_8(32)
 #define SLOPE_SPEED_MODIFIER 0x50
 
-#define WALK_SPEED Q_8_8(1.25)
-#define ROLL_SPEED Q_8_8(2.0)
-#define GUST_JAR_SPEED Q_8_8(0.5)
-#define SHIELDING_SPEED Q_8_8(0.75)
-#define SWORD_CHARGE_SPEED Q_8_8(0.875)
 #define BURNING_SPEED Q_8_8(3)
 
 #define JUMP_SPEED_FWD Q_8_8(1)
@@ -48,7 +43,7 @@
 
 #define FALL_DAMAGE 2
 
-#define DEFAULT_ANIM 0x100
+#define DEFAULT_ANIM 256
 
 static EntityAction PlayerInit;
 static EntityAction PlayerNormal;
@@ -392,7 +387,11 @@ static void PlayerNormal(Entity* this) {
     if (gPlayerState.flags & PL_CAPTURED) {
         this->spritePriority.b1 = 0;
         this->knockbackDuration = 0;
+        #ifdef SPEEDVERSION
+        this->speed = WALK_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+        #else
         this->speed = WALK_SPEED;
+        #endif
         gPlayerState.pushedObject = 0x80;
         gPlayerState.framestate = PL_STATE_TRAPPED;
         if ((this->animationState >> 1) + 92 == this->animIndex && (u16)this->spriteIndex == 2)
@@ -407,7 +406,7 @@ static void PlayerNormal(Entity* this) {
     if (gPlayerState.flags & PL_IN_MINECART) {
         this->hurtType = 30;
         gPlayerState.framestate = PL_STATE_C;
-        sub_08070BEC(this, this->speed == 0 ? 1 : 0);
+        sub_08070BEC(this, this->speed == 0 ? 1*100 : 0);
         return;
     }
     if (gPlayerState.flags & PL_MOLDWORM_CAPTURED) {
@@ -420,6 +419,19 @@ static void PlayerNormal(Entity* this) {
         return;
     }
     if (!gPlayerState.swim_state && (gPlayerState.jump_status & 0xC0) == 0) {
+        #ifdef SPEEDVERSION
+        if (gPlayerState.shield_status || gPlayerState.field_0x1f[2]) {
+            this->speed = SHIELDING_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+        } else {
+            if (gPlayerState.sword_state) {
+                this->speed = SWORD_CHARGE_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+            } else if (gPlayerState.field_0x1c) {
+                this->speed = GUST_JAR_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+            } else {
+                this->speed = WALK_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+            }
+        }
+        #else
         if (gPlayerState.shield_status || gPlayerState.field_0x1f[2]) {
             this->speed = SHIELDING_SPEED;
         } else {
@@ -431,6 +443,7 @@ static void PlayerNormal(Entity* this) {
                 this->speed = WALK_SPEED;
             }
         }
+        #endif
     }
     gPlayerState.pushedObject |= 0x80;
     if ((gPlayerState.flags & (PL_USE_OCARINA | PL_FLAGS2)) == 0) {
@@ -2034,13 +2047,13 @@ static void PlayerRoll(Entity* this) {
 
 static void PlayerRollInit(Entity* this) {
     u32 temp;
-
     if ((gPlayerState.flags & PL_MOLDWORM_RELEASED) == 0) {
         sub_0806F948(&gPlayerEntity);
         this->direction = Direction8FromAnimationState(this->animationState);
     }
     this->subAction = 1;
     this->timer = 0;
+
     ResetActiveItems();
     temp = gPlayerState.flags;
     if (gPlayerState.flags & PL_MINISH) {
@@ -2106,6 +2119,24 @@ static void PlayerRollUpdate(Entity* this) {
         // roll in place when on ice
         UpdateIcePlayerVelocity(this);
     } else {
+        #ifdef SPEEDVERSION
+        switch (this->frame & 0xf) {
+            case 0:
+                if ((this->frame & 0xf) == 0) {
+                    this->speed = ROLL_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+                }
+                break;
+            case 1:
+                this->speed += (ROLL_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1)) / 16;
+                break;
+            case 2:
+                this->speed = ((ROLL_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1)) * 3 / 2);
+                break;
+            case 3:
+                this->speed = 0;
+                break;
+        }
+        #else
         switch (this->frame & 0xf) {
             case 0:
                 if ((this->frame & 0xf) == 0) {
@@ -2116,12 +2147,13 @@ static void PlayerRollUpdate(Entity* this) {
                 this->speed += ROLL_SPEED / 16;
                 break;
             case 2:
-                this->speed = (ROLL_SPEED * 3 / 2);
+                this->speed = ROLL_SPEED * 3 / 2;
                 break;
             case 3:
                 this->speed = 0;
                 break;
         }
+        #endif
         CheckPlayerVelocity();
         UpdatePlayerMovement();
     }
@@ -3132,7 +3164,11 @@ static void sub_08073D20(Entity* this) {
     this->hurtType = 1;
     ResetPlayerVelocity();
     if (!gPlayerState.swim_state)
-        this->speed = 0xC0; /* todo: shielding speed? */
+    #ifdef SPEEDVERSION
+        this->speed = MINISH_WALK_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+    #else
+        this->speed = MINISH_WALK_SPEED;
+    #endif
     if (!sub_08079B24()) {
         sub_08079708(this);
         return;
@@ -3780,7 +3816,11 @@ void SurfaceAction_ConveyerEast(Entity* this) {
 static void conveyer_push(Entity* this) {
     ResetActiveItems();
     this->spritePriority.b1 = 0;
+    #ifdef SPEEDVERSION
+    this->speed = WALK_SPEED * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+    #else
     this->speed = WALK_SPEED;
+    #endif
     gPlayerState.flags |= PL_CONVEYOR_PUSHED;
     gPlayerState.field_0xa |= 0x80;
     gPlayerState.mobility |= 0x80;

@@ -1225,7 +1225,9 @@ void sub_0803B724(Entity* param_1) {
 void sub_0803B798(void) {
     gPlayerState.jump_status = 0x41;
     gPlayerState.field_0xa = 0;
-    gPlayerState.flags &= ~(0xffff0000 | PL_CAPTURED);
+    gPlayerState.flags &= ~(0x80000000 | 0x40000000 | PL_GYORG_FIGHT | PL_ROLLING | PL_MOLDWORM_CAPTURED | PL_IN_HOLE |
+          PL_MOLDWORM_RELEASED | PL_CLONING | PL_USE_LANTERN | PL_PARACHUTE | PL_CONVEYOR_PUSHED | PL_ENTER_MINECART |
+          PL_SWORD_THRUST | PL_USE_OCARINA | PL_CLIMBING | PL_CAPTURED);
     gPlayerEntity.flags |= ENT_COLLIDE;
     gPlayerEntity.zVelocity = Q_16_16(1.5);
     gPlayerEntity.z.HALF.HI = -10;

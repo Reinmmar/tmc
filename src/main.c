@@ -159,7 +159,7 @@ const SaveHeader sDefaultSettings = {
     .msg_speed = 1,
     .brightness = 1,
 #ifdef EU
-    .language = 2, // TODO in EU 2 is english?
+    .language = SAVELANG_EN,
 #else
     .language = GAME_LANGUAGE,
 #endif

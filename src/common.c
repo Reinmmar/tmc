@@ -288,12 +288,12 @@ void LoadGfxGroup(u32 group) {
             case 0xD:
                 return;
             case 0xE:
-                if (gSaveHeader->language != 0 && gSaveHeader->language != 1) {
+                if (gSaveHeader->language != SAVELANG_JP && gSaveHeader->language != SAVELANG_US) {
                     loadGfx = TRUE;
                 }
                 break;
             case 0xF:
-                if (gSaveHeader->language != 0) {
+                if (gSaveHeader->language != SAVELANG_JP) {
                     loadGfx = TRUE;
                 }
                 break;

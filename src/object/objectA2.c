@@ -51,7 +51,7 @@ void ObjectA2_Init(Entity* this) {
 void ObjectA2_Action1(Entity* this) {
     LinearMoveUpdate(this);
 #ifndef EU
-    if (gSaveHeader->language < 2) {
+    if (gSaveHeader->language < SAVELANG_EN) {
         if (sub_080044EC(this, 0x2000) < 2) {
             this->z.WORD = 0;
             this->action = 2;

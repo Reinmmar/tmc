@@ -302,7 +302,7 @@ void sub_080179EC(Entity* a1, Entity* a2) {
 Entity* sub_08017A90(Entity* a1, Entity* parent) {
     Entity* e;
 
-    e = (Entity*)CreateObject(HIT_SWITCH, 0, 0);
+    e = CreateObject(HIT_SWITCH, 0, 0);
     if (e != NULL) {
         e->animationState = (a1->direction >> 3) & 3;
         e->spriteOffsetX = a1->x.HALF.HI - parent->x.HALF.HI;
@@ -392,7 +392,7 @@ CollisionResult sub_08017B58(Entity* org, Entity* tgt, u32 direction, ColSetting
     if ((tgt->gustJarState & 4) != 0) {
         if (tgt->gustJarTolerance) {
             tgt->gustJarTolerance = tgt->gustJarTolerance - gPlayerState.gustJarSpeed;
-            if ((s8)tgt->gustJarTolerance <= 0) {
+            if (tgt->gustJarTolerance <= 0) {
                 tgt->gustJarTolerance = 0;
                 tgt->subAction = 2;
                 tgt->knockbackSpeed = 0;

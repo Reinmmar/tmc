@@ -20,6 +20,16 @@ typedef enum {
     SAVE_DONE,
 } SaveState;
 
+typedef enum {
+    SAVELANG_JP,
+    SAVELANG_US,
+    SAVELANG_EN,
+    SAVELANG_FR,
+    SAVELANG_DE,
+    SAVELANG_ES,
+    SAVELANG_IT,
+} SaveLanguages;
+
 /**
  * Attempt to save the game.
  *

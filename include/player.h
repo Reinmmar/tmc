@@ -4,6 +4,16 @@
 #include "global.h"
 #include "entity.h"
 
+#define SPEED_MODIFIER              4
+#define SWIM_SPEED_SLOW             192
+#define SWIM_SPEED_FAST             256
+#define MINISH_WALK_SPEED           192
+#define WALK_SPEED         Q_8_8(   1.25    )
+#define ROLL_SPEED         Q_8_8(   2       )
+#define GUST_JAR_SPEED     Q_8_8(   0.5     )
+#define SHIELDING_SPEED    Q_8_8(   0.75    )
+#define SWORD_CHARGE_SPEED Q_8_8(   0.875   )
+
 enum PlayerActions {
     PLAYER_INIT,
     PLAYER_NORMAL,
@@ -125,6 +135,8 @@ typedef enum {
     PL_SWORD_THRUST = 0x8000000,
     PL_USE_OCARINA = 0x10000000,
     PL_CLIMBING = 0x20000000,
+    PL_FLAGS40000000 = 0x40000000,
+    PL_FLAGS80000000 = 0x80000000,
 } PlayerFlags;
 
 enum PlayerItemId {

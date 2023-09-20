@@ -31,7 +31,7 @@ void ConvertGbaToPng(char* inputPath, char* outputPath, struct GbaToPngOptions* 
     }
 
     ReadImage(inputPath, options->width, options->bitDepth, options->metatileWidth, options->metatileHeight, &image,
-              !image.hasPalette);
+              false);
 
     image.hasTransparency = options->hasTransparency;
 
@@ -48,7 +48,7 @@ void ConvertPngToGba(char* inputPath, char* outputPath, struct PngToGbaOptions* 
     ReadPng(inputPath, &image);
 
     WriteImage(outputPath, options->numTiles, options->bitDepth, options->metatileWidth, options->metatileHeight,
-               &image, !image.hasPalette);
+               &image, false);
 
     FreeImage(&image);
 }
@@ -59,6 +59,7 @@ void HandleGbaToPngCommand(char* inputPath, char* outputPath, int argc, char** a
     options.paletteFilePath = NULL;
     options.bitDepth = inputFileExtension[0] - '0';
     options.hasTransparency = false;
+    printf("%s\n", inputPath);
     options.width = 1;
     options.metatileWidth = 1;
     options.metatileHeight = 1;
@@ -76,11 +77,9 @@ void HandleGbaToPngCommand(char* inputPath, char* outputPath, int argc, char** a
         } else if (strcmp(option, "-object") == 0) {
             options.hasTransparency = true;
         } else if (strcmp(option, "-width") == 0) {
-            if (i + 1 >= argc)
-                FATAL_ERROR("No width following \"-width\".\n");
+            if (i + 1 >= argc) FATAL_ERROR("No width following \"-width\".\n");
 
             i++;
-
             if (!ParseNumber(argv[i], NULL, 10, &options.width))
                 FATAL_ERROR("Failed to parse width.\n");
 
@@ -465,10 +464,10 @@ int main(int argc, char** argv) {
         FATAL_ERROR("Output file \"%s\" has no extension.\n", outputPath);
 
     for (int i = 0; handlers[i].function != NULL; i++) {
-        if ((handlers[i].inputFileExtension == NULL ||
-             strcmp(handlers[i].inputFileExtension, inputFileExtension) == 0) &&
-            (handlers[i].outputFileExtension == NULL ||
-             strcmp(handlers[i].outputFileExtension, outputFileExtension) == 0)) {
+        if (
+            (handlers[i].inputFileExtension == NULL || strcmp(handlers[i].inputFileExtension, inputFileExtension) == 0) &&
+            (handlers[i].outputFileExtension == NULL || strcmp(handlers[i].outputFileExtension, outputFileExtension) == 0)
+        ) {
             handlers[i].function(inputPath, outputPath, argc, argv);
             return 0;
         }

@@ -709,22 +709,23 @@
 #define SIO_MULTI_DI_MASK 0x1
 
 // keys
-#define A_BUTTON 0x0001
-#define B_BUTTON 0x0002
-#define SELECT_BUTTON 0x0004
-#define START_BUTTON 0x0008
-#define DPAD_RIGHT 0x0010
-#define DPAD_LEFT 0x0020
-#define DPAD_UP 0x0040
-#define DPAD_DOWN 0x0080
-#define R_BUTTON 0x0100
-#define L_BUTTON 0x0200
-#define KEYS_MASK 0x03FF
-#define KEY_INTR_ENABLE 0x0400
-#define KEY_OR_INTR 0x0000
-#define KEY_AND_INTR 0x8000
-#define DPAD_ANY 0x00F0
-#define JOY_EXCL_DPAD 0x030F
+#define A_BUTTON                    (1 << 0) // 0x1
+#define B_BUTTON                    (1 << 1) // 0x2
+#define SELECT_BUTTON               (1 << 2) // 0x4
+#define START_BUTTON                (1 << 3) // 0x8
+#define DPAD_RIGHT                  (1 << 4) // 0x10
+#define DPAD_LEFT                   (1 << 5) // 0x20
+#define DPAD_UP                     (1 << 6) // 0x40
+#define DPAD_DOWN                   (1 << 7) // 0x80
+#define R_BUTTON                    (1 << 8) // 0x100
+#define L_BUTTON                    (1 << 9) // 0x200
+#define KEYS_MASK                   0x3FF
+#define KEY_INTR_ENABLE             1024
+#define KEY_OR_INTR                 0
+#define KEY_AND_INTR                0x8000
+#define DPAD_ANY                    (15 << 4)
+#define EVERYTHING_EXCEPT_R_BUTTON  0xfffffeff
+#define JOY_EXCL_DPAD               DPAD_ANY ^ KEYS_MASK
 
 // interrupt flags
 #define INTR_FLAG_VBLANK (1 << 0)

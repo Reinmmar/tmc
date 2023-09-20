@@ -4,11 +4,11 @@
 #include "global.h"
 
 typedef enum {
-    FADE_IN_OUT = 0x1,
-    FADE_BLACK_WHITE = 0x2,
-    FADE_INSTANT = 0x4,
-    FADE_MOSAIC = 0x8,
-    FADE_IRIS = 0x10,
+    FADE_IN_OUT         = (1 << 0),
+    FADE_BLACK_WHITE    = (1 << 1),
+    FADE_INSTANT        = (1 << 2),
+    FADE_MOSAIC         = (1 << 3),
+    FADE_IRIS           = (1 << 4),
 } FadeFlags;
 
 /**

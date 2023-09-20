@@ -2679,9 +2679,17 @@ void PlayerSwimming(Entity* this) {
     this->spritePriority.b1 = 0;
     this->knockbackDuration = 0;
     if (GetInventoryValue(ITEM_SWIM_BUTTERFLY) == 1) {
-        speed = 0x100;
+        #ifdef SPEEDVERSION
+        speed = SWIM_SPEED_FAST * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+        #else
+        speed = SWIM_SPEED_FAST;
+        #endif
     } else {
-        speed = 0xc0;
+        #ifdef SPEEDVERSION
+        speed = SWIM_SPEED_SLOW * (gInput.heldKeys & L_BUTTON ? SPEED_MODIFIER : 1);
+        #else
+        speed = SWIM_SPEED_SLOW;
+        #endif
     }
     if (speed > this->speed) {
         this->speed = speed;
@@ -3905,7 +3913,7 @@ u32 FinalizeSave(void) {
     {
         const u8* tmp;
         MemCopy(demoPointers[gSaveHeader->saveFileId], &gSave, 0x4B4);
-        if (gSaveHeader->language == 0) {
+        if (gSaveHeader->language == SAVELANG_JP) {
             gSave.name[0] = 0x97;
             gSave.name[1] = 0x7F;
             gSave.name[2] = 0xDD;

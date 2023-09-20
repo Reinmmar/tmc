@@ -57,9 +57,9 @@ extern const struct_08128AD8 gUnk_08128AD8[];
 Subtask FigurineMenu0_Type0;
 Subtask FigurineMenu0_Type1;
 Subtask FigurineMenu0_Type2;
-Subtask FigurineMenu0_Type3;
+Subtask FigurineMenu0_AfterDrawing;
 Subtask FigurineMenu1_Type0;
-Subtask FigurineMenu1_Type1;
+Subtask FigurineMenu1_ViewFigurines;
 Subtask FigurineMenu1_Type2;
 Subtask FigurineMenu1_Type3;
 
@@ -68,11 +68,11 @@ void Subtask_FigurineMenu(void) {
         FigurineMenu0_Type0,
         FigurineMenu0_Type1,
         FigurineMenu0_Type2,
-        FigurineMenu0_Type3,
+        FigurineMenu0_AfterDrawing,
     };
     static Subtask* const figurineMenu0_Types[] = {
         FigurineMenu1_Type0,
-        FigurineMenu1_Type1,
+        FigurineMenu1_ViewFigurines,
         FigurineMenu1_Type2,
         FigurineMenu1_Type3,
     };
@@ -120,7 +120,7 @@ void FigurineMenu_080A4608(void) {
     SetFade(FADE_INSTANT, 8);
 }
 
-void FigurineMenu_080A46C0(void) {
+void FigurineMenu_Close(void) {
     SetBgmVolume(0x100);
     SoundReq(SFX_MENU_CANCEL);
     ClearRoomFlag(2);
@@ -175,32 +175,34 @@ void FigurineMenu0_Type2(void) {
     }
 }
 
-void FigurineMenu0_Type3(void) {
-    s32 uVar1;
+#define SCROLL_SPEED 8
+
+void FigurineMenu0_AfterDrawing(void) {
+    s32 textY;
     s32 t;
 
-    uVar1 = gFigurineMenu.unk1f;
+    textY = gFigurineMenu.unk1f;
     switch (gInput.unk4) {
-        case 2:
-        case 8:
-            FigurineMenu_080A46C0();
+        case B_BUTTON:
+        case START_BUTTON:
+            FigurineMenu_Close();
             break;
-        case 0x10:
-            uVar1 += 8;
+        case DPAD_RIGHT:
+            textY += SCROLL_SPEED;
             break;
-        case 0x20:
-            uVar1 -= 8;
+        case DPAD_LEFT:
+            textY -= SCROLL_SPEED;
             break;
     }
     t = gFigurineMenu.unk1e;
-    if (uVar1 < 0) {
-        uVar1 = 0;
+    if (textY < 0) {
+        textY = 0;
     }
-    if (t < uVar1) {
-        uVar1 = t;
+    if (t < textY) {
+        textY = t;
     }
-    gFigurineMenu.unk1f = uVar1;
-    gScreen.bg1.yOffset = uVar1 - 0x70;
+    gFigurineMenu.unk1f = textY;
+    gScreen.bg1.yOffset = textY - 112;
 }
 
 void FigurineMenu1_Type0(void) {
@@ -211,63 +213,63 @@ void FigurineMenu1_Type0(void) {
     SetMenuType(1);
 }
 
-void FigurineMenu1_Type1(void) {
-    int r0, r1, r4, r5;
+void FigurineMenu1_ViewFigurines(void) {
+    int prevFigIndex, maxFigurines, figurineIndex, infoY;
 
     if (gFadeControl.active)
         return;
 
-    r5 = gFigurineMenu.unk1f;
-    r4 = gFigurineMenu.figure_idx;
+    infoY = gFigurineMenu.unk1f;
+    figurineIndex = gFigurineMenu.figure_idx;
     switch (gInput.unk4) {
         case B_BUTTON:
         case START_BUTTON:
             SetMenuType(3);
             break;
         case L_BUTTON:
-            r4 -= 5;
+            figurineIndex -= 5;
             break;
         case R_BUTTON:
-            r4 += 5;
+            figurineIndex += 5;
             break;
         case DPAD_UP:
-            r4--;
+            figurineIndex--;
             break;
         case DPAD_DOWN:
-            r4++;
+            figurineIndex++;
             break;
         case DPAD_RIGHT:
-            r5 += 8;
+            infoY += 8;
             break;
         case DPAD_LEFT:
-            r5 -= 8;
+            infoY -= 8;
             break;
         case A_BUTTON:
             break;
     }
-    r1 = !gSave.saw_staffroll ? 0x82 : 0x88;
-    if (r4 <= 0) {
-        r4 = 1;
+    maxFigurines = !gSave.saw_staffroll ? 130 : 136;
+    if (figurineIndex <= 0) {
+        figurineIndex = 1;
     }
-    if (r1 < r4) {
-        r4 = r1;
+    if (maxFigurines < figurineIndex) {
+        figurineIndex = maxFigurines;
     }
-    r0 = gFigurineMenu.figure_idx;
-    if (r0 != r4) {
-        gFigurineMenu.figure_idx = r4;
+    prevFigIndex = gFigurineMenu.figure_idx;
+    if (prevFigIndex != figurineIndex) {
+        gFigurineMenu.figure_idx = figurineIndex;
         SoundReq(SFX_TEXTBOX_CHOICE);
         SetMenuType(2);
-        r5 = 0;
+        infoY = 0;
     }
-    r0 = gFigurineMenu.unk1e;
-    if (r5 < 0) {
-        r5 = 0;
+    prevFigIndex = gFigurineMenu.unk1e;
+    if (infoY < 0) {
+        infoY = 0;
     }
-    if (r0 < r5) {
-        r5 = r0;
+    if (prevFigIndex < infoY) {
+        infoY = prevFigIndex;
     }
-    gFigurineMenu.unk1f = r5;
-    gScreen.bg1.yOffset = r5 - 0x70;
+    gFigurineMenu.unk1f = infoY;
+    gScreen.bg1.yOffset = infoY - 112;
 }
 
 void FigurineMenu1_Type2(void) {
@@ -275,7 +277,7 @@ void FigurineMenu1_Type2(void) {
 }
 
 void FigurineMenu1_Type3(void) {
-    FigurineMenu_080A46C0();
+    FigurineMenu_Close();
 }
 
 u32 sub_080A4948(s32 param_1) {
@@ -495,7 +497,7 @@ void sub_080A4BA0(u32 arg1, u32 arg2) {
             s2.unk8 = r0 >> 8;
             s2.unk9 = r5;
             s0.unk0 += 0xb;
-            if (gSaveHeader->language == 0) {
+            if (gSaveHeader->language == SAVELANG_JP) {
                 ShowTextBox((u32)&s2, &s0);
             } else {
                 ShowTextBox(r5, &s0);

@@ -306,7 +306,7 @@ u32* sub_0805F25C(u32 param_1) {
     switch (uVar1) {
         case 0:
         case 1:
-            if (0x7f < param_1 && gSaveHeader->language != 0) {
+            if (0x7f < param_1 && gSaveHeader->language != SAVELANG_JP) {
                 param_1 = param_1 - 0x80;
                 uVar1 = 2;
             }
@@ -743,7 +743,7 @@ void sub_0805F918(u32 idx, u32 idx2, void* dest) {
 }
 
 u32 sub_0805F9A0(u32 r0) {
-    if (gSaveHeader->language == 0) {
+    if (gSaveHeader->language == SAVELANG_JP) {
         u16* val = &gUnk_081092D4;
         u32 i = 0;
 
